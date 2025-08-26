@@ -6,7 +6,9 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not set in environment variables');
-  process.exit(1);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 }
 
 // MongoDB connection options for production (Mongoose v8 compliant)
@@ -26,7 +28,10 @@ mongoose.connect(MONGODB_URI, mongooseOptions)
   })
   .catch((err) => {
     console.error('❌ MongoDB Atlas connection error:', err.message);
-    process.exit(1);
+    // Avoid exiting in serverless (Vercel) so the function can return 500 gracefully
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   });
 
 mongoose.connection.on('connected', () => {
@@ -56,7 +61,9 @@ process.on('SIGINT', async () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 });
 
 module.exports = mongoose;

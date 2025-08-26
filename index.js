@@ -42,14 +42,39 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Test route to verify server is working
+app.get('/test', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Test route working',
+    routes: ['/health', '/test', '/api/auth/*']
+  });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
+
+// Debug route to check if auth routes are loaded
+app.get('/api/auth', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Auth routes are loaded',
+    availableEndpoints: [
+      'POST /api/auth/create-user',
+      'POST /api/auth/login',
+      'GET /api/auth/get-user',
+      'POST /api/auth/logout',
+      'PUT /api/auth/update-profile'
+    ]
+  });
+});
 
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
-    message: `Route ${req.originalUrl} not found`
+    message: `Route ${req.originalUrl} not found`,
+    availableRoutes: ['/health', '/test', '/api/auth']
   });
 });
 
@@ -65,13 +90,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Festora Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📱 Auth API: http://localhost:${PORT}/api/auth`);
-});
+// Start server (only if not on Vercel)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Festora Server running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`📱 Auth API: http://localhost:${PORT}/api/auth`);
+  });
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
