@@ -51,6 +51,18 @@ app.get('/test', (req, res) => {
   });
 });
 
+// Welcome route for root URL
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Welcome to Festora App! 🎉',
+    description: 'Your festival and event management platform',
+    version: '1.0.0',
+    availableRoutes: ['/health', '/test', '/api/auth/*'],
+    documentation: 'Visit /health for server status or /api/auth for authentication endpoints'
+  });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 
@@ -74,7 +86,7 @@ app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
     message: `Route ${req.originalUrl} not found`,
-    availableRoutes: ['/health', '/test', '/api/auth']
+    availableRoutes: ['/', '/health', '/test', '/api/auth']
   });
 });
 
